@@ -64,6 +64,36 @@ class GateTests {
         Engine(EngineConfig(modelPath = modelFile.absolutePath, backend = backend))
             .also { it.initialize() }
 
+    // ---------------------------------------------------------------- device profile
+
+    /**
+     * Not a gate. Captures the device profile and proves the provenance path works.
+     *
+     * Deliberately does NOT call requireModel(): every other test skips without the model, so
+     * until one runs, none of the provenance code has ever executed. EGL context creation
+     * inside an instrumented test is exactly the kind of thing that fails silently — finding
+     * that out during a device session, with a 3.66 GB model already pushed, wastes the session.
+     *
+     * Run this first on any new device. It answers "is this device slot A or slot B" from
+     * GL_RENDERER rather than from the model number, which is the ground truth.
+     */
+    @Test
+    fun deviceProfile() {
+        val p = provenance("n/a")
+        val out = JSONObject().put("gate", "device-profile").put("provenance", p)
+            .put("model_present", modelFile.exists())
+            .put("model_path", modelFile.absolutePath)
+        record(out)
+
+        val renderer = p.optString("gl_renderer")
+        assert(!renderer.startsWith("unavailable")) {
+            "GL_RENDERER unreadable ($renderer) — provenance would be blank for every gate result"
+        }
+        assert(p.optLong("page_size") > 0) { "PAGE_SIZE unreadable" }
+        // Mali means slot A (V29 is meaningful); Adreno means slot B (V29 cannot run here).
+        android.util.Log.i("GATES", "DEVICE PROFILE: $p")
+    }
+
     // ---------------------------------------------------------------- V34
 
     /**
