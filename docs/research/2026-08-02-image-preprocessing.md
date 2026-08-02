@@ -72,15 +72,31 @@ So T1 is the happy path, not the plan.
 
 **The default extraction path already runs OCR before the LLM.** OCR returns per-line bounding boxes. The union of those boxes, expanded by a margin, *is* the content region.
 
+**A naive union is wrong, and the error is easy to miss.** Taking the union of *all* OCR line boxes includes any text that happens to be in frame — a magazine on the table, another receipt, a laptop screen. Those boxes are high-confidence, so confidence filtering does not remove them, and the union grows to enclose them **by construction**. The crop would then be larger than the frame-fill it was meant to fix, and the background text stays.
+
+Cluster first, then union:
+
 ```
-lines      = ocr(image).lines filtered to confidence > MIN_LINE_CONF   # [TUNE] 0.30
-if lines.count < MIN_LINES:  return T3                                 # [TUNE] 3
-box        = unionOf(lines.map(.boundingBox))
-box        = box.expanded(by: 0.04 * max(box.w, box.h))                # [TUNE] 4% margin
-box        = box.clamped(to: imageBounds)
-if box.area / imageBounds.area > 0.92: return uncropped                # nothing to gain
+lines   = ocr(image).lines filtered to confidence > MIN_LINE_CONF     # [TUNE] 0.30
+if lines.count < MIN_LINES:  return T3                                # [TUNE] 3
+
+# Group lines into candidate documents. A receipt is a run of lines that are
+# vertically close and share horizontal extent; a magazine across the table is not.
+clusters = connectedComponents(lines, adjacentIf: { a, b in
+    verticalGap(a, b) < 1.5 * medianLineHeight            # [TUNE]
+      && horizontalOverlap(a, b) > 0.35                   # [TUNE]
+})
+doc     = clusters.maxBy { $0.totalTextArea }             # dominant cluster wins
+if let quad = scannerQuad { doc = doc.filter { quad.contains($0.center) } }  # T1 ∩ T2
+
+box     = unionOf(doc.map(.boundingBox))
+box     = box.expanded(by: 0.04 * max(box.w, box.h))      # [TUNE] 4% margin
+box     = box.clamped(to: imageBounds)
+if box.area / imageBounds.area > 0.92: return uncropped   # nothing to gain
 return crop(image, box)
 ```
+
+When T1 produced a quad, intersecting with it is the cheapest and most reliable disambiguator — the scanner already decided where the document is, and T2 only needs to tighten it.
 
 Why this is the right primary mechanism:
 
@@ -117,6 +133,8 @@ if aspect > ASPECT_SPLIT_THRESHOLD:  segment()     # [TUNE] start at 2.5
 ### Where to split
 
 **Never split through a line of text.** Splitting mid-glyph produces two half-characters that both extract wrong, and the merge step cannot tell that it happened.
+
+**Deskew first.** Horizontal cuts assume horizontal text lines. On a receipt T1 declined — which is exactly the tilted, crumpled case that reaches T2 — the whitespace gaps between lines shrink or vanish as skew increases, and the cut lands mid-text anyway. Rotate by the median OCR baseline angle before computing gaps. The angle is already available from the line boxes, so this costs one rotation.
 
 Use the OCR line boxes from stage 2 — they are already computed:
 
@@ -155,6 +173,8 @@ Because the failure is not "the model sees a blurry receipt", it is "the model c
 | Any non-document image classification | 70–140 | Not a use case in this app today |
 
 Feed each segment at 1120 rather than the whole strip at 1120. The budget is per image, so segmentation is what actually buys resolution — the budget setting alone cannot.
+
+**This rests on an assumption V16 must settle: is the budget per image or per conversation?** If it is per *conversation*, then feeding four segments at 1120 each does not give four times the tokens — it divides one budget four ways, and segmentation becomes actively harmful rather than merely unnecessary. Measure this before building the segmenter; it is the same experiment as §11 item 3 and should be answered in the same sitting.
 
 ---
 
