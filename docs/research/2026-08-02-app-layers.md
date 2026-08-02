@@ -419,6 +419,17 @@ Log all four alongside every correction. The calibration dataset then accumulate
 
 Escalate to image input when: OCR word confidence below threshold, or a required field missing, or the arithmetic check fails. **V16** measures 280 vs 1120 visual tokens on 50 real dense thermal receipts (skip 560 — the midpoint interpolates) for F1, prefill latency and peak memory.
 
+**Additional precondition — aspect ratio (added during reconciliation, see `2026-08-02-image-preprocessing.md` §9).** The trigger above is necessary but not sufficient. A VLM sees a fixed visual token budget spread over whatever image it is handed, so escalating a long till roll *unsegmented* can score **worse** than the OCR path it escalated from — the same budget stretched over a 1:8 strip leaves too few tokens per character, and digits fail first. The gate becomes:
+
+```
+escalate  ⟺  (low_confidence ∨ missing_field ∨ arithmetic_mismatch)
+             ∧ (aspect ≤ ASPECT_SPLIT_THRESHOLD ∨ segmentation_succeeded)
+```
+
+If segmentation is unavailable or fails on a long receipt, **do not escalate** — keep the OCR result and route to user confirmation instead. A known-mediocre answer the user can correct beats a confidently wrong total.
+
+**V16 must therefore be run on segmented input**, and its receipt sample must include long till rolls, not only dense A5-sized thermal receipts, or it will measure the easy case and set the threshold too low.
+
 ---
 
 ## 9. Layer: field observability, support and remediation
