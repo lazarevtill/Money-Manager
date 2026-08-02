@@ -27,6 +27,17 @@ Slot A is the one that gates the product's shape. If it is missing, buy one sub-
 | Device | Chipset | GPU | RAM | OS | Slot |
 | --- | --- | --- | --- | --- | --- |
 | **Galaxy S21+ 5G** (`SM-G996B`) | **Exynos 2100** (`universal2100_r`) | **Mali-G78**, OpenGL ES 3.2, driver `r38p0` | 7.03 GiB usable (8 GB) | Android 15, SDK 35 | **A ✅** |
+
+GPU confirmed by **measurement, not inference** — `GL_RENDERER` read from a live EGL context inside an installed APK on 2026-08-03, not derived from the model number:
+
+```json
+{ "soc_model": "Exynos 2100", "device": "SM-G996B", "android_sdk": 35,
+  "gl_renderer": "Mali-G78",
+  "gl_version": "OpenGL ES 3.2 v1.r38p0-01eac0-mbs2v41_0.4ef6e1c9ba431853d05b271234c3d1c5",
+  "page_size": 4096 }
+```
+
+**The harness is validated end to end on hardware.** Both APKs install, instrumentation runs, EGL context creation succeeds inside an instrumented test, provenance is captured, `gate-results.json` is written and pullable, and model absence is correctly detected (`model_present: false`) rather than silently passing. Nothing about the plumbing is unknown any more — only the model is missing.
 | Galaxy Tab S8 Ultra | Snapdragon 8 Gen 1 | Adreno 730 | 8–16 GB | — | B *(not yet verified over adb)* |
 | Galaxy Z Fold 7 | Snapdragon (8 Elite class) | Adreno | 12–16 GB | — | B *(not yet verified over adb)* |
 
