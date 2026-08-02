@@ -89,7 +89,22 @@ This gap does not block anything now. It becomes blocking before the fallback la
 
 **On runtime validation.** The connected S21+ reports `PAGE_SIZE` 4096 and cannot exercise 16 KB behaviour, but that does not mean runtime validation is impossible — Android emulator 16 KB system images exist, and Pixel 8+ has a developer option to boot a 16 KB kernel. The static check remains the CI gate because it is cheap, deterministic, and covers every library; treat runtime validation as a useful supplement, not as unavailable.
 
-**Result:** _not yet run_
+### Result: **PASS** — 2026-08-03
+
+`litertlm-android:0.15.0`, arm64-v8a, `liblitertlm_jni.so` (21,199,264 bytes), extracted from a debug APK built with NDK 28.2.13676358. All three `LOAD` segments at `align 2**14`:
+
+```
+LOAD off 0x0000000000000000  align 2**14   filesz 0x1372e00  flags r-x
+LOAD off 0x0000000001374000  align 2**14   filesz 0x00b80f8  flags rw-
+LOAD off 0x000000000142c0f8  align 2**14   filesz 0x000abb0  flags rw-
+```
+
+Google's prebuilt is correctly aligned. **The multi-day source build is not on the critical path.**
+
+**Two caveats on how far this result goes:**
+
+1. **It covers one library.** The spike APK contains only `liblitertlm_jni.so`. The real app adds SQLCipher/op-sqlite, Hermes, and every other native dependency. Re-run against the actual release APK — this retires the LiteRT-LM risk specifically, not the gate.
+2. **The checker produced a false PASS before it produced a true one.** The first version split on the literal `"**"`, which awk parses as a regex; awk aborted, the result was empty, and empty read as "no misaligned segments". A gate whose parse failure is indistinguishable from success is worse than no gate. It now fails closed when no `LOAD` line parses, and the raw objdump output above is recorded rather than only the script's verdict.
 
 ---
 
