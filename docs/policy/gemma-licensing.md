@@ -41,6 +41,7 @@ Do not reword, abbreviate, or merge it into surrounding prose.
 | --- | --- | --- |
 | Verbatim notice | In-app licenses screen · model-download screen · repo `NOTICE` | ☐ |
 | Full Agreement copy | Bundled in-app as text, **not** a link — a link fails if the user is offline or Google moves the URL, and the obligation is to *provide a copy* | ☐ |
+| Prohibited Use Policy copy | **Also bundled**, same reasoning. The EULA clause below binds the user to the PUP, and binding someone to a document they may be unable to read is both weak drafting and inconsistent with the line above | ☐ |
 | §3.2 restrictions bound in the EULA | EULA §N, draft in §5 below | ☐ |
 | Modification notice | Not yet applicable. Becomes required the moment a fine-tuned model ships | n/a until v2 |
 

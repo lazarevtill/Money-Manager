@@ -160,7 +160,7 @@ Three open upstream issues [all REPORTED, open and awaiting Google as of 2026-08
 **Rules, not hopes:**
 
 - **R-ENG-1 — pin by `revision:` with a vendored checksum**, and add a CI assertion that the resolved artifact hash equals the expected one. A version pin can link a binary you did not ask for.
-- **R-ENG-2 — `engine reports ready` is untrusted.** After every engine init, run a known-answer smoke inference and fail closed (V36).
+- **R-ENG-2 — `engine reports ready` is untrusted.** After every engine init, run a known-answer smoke inference and fail closed (V34).
 - **R-ENG-3 — digit exactness is a separate gate from F1** (§8.1). F1 over `{merchant, category, currency, date, total}` passes at 0.80 while `total` and `date` are silently wrong, because merchant and category carry the score.
 - **R-ENG-4 — the revision matrix (V0) runs in week one, before the native module exists.** Deliverable is one table: revision × backend × {compiles, digit-exact %, peak RSS}. If no cell is green by end of week 2, the iOS contingency activates automatically (§16).
 
@@ -175,7 +175,7 @@ From `c/engine.h` on `main` **[VERIFIED symbol / UNVERIFIED behaviour — read 2
 | **Visual token budget** | `litert_lm_conversation_optional_args_set_visual_token_budget` | V16 is a config sweep, confirmed reachable. | V16 |
 | **Per-token scores** | `litert_lm_session_run_text_scoring`, `litert_lm_responses_get_token_scores_at`, `..._has_score_at` | **V12 is ANSWERED: yes, reachable from the C API.** Consumption deferred to v2 (§8.4). | V12 |
 | **Self-consistency** | `litert_lm_responses_get_num_candidates` exists; **no `num_output_candidates` setter exists in the C API** | **V14 is ANSWERED: the cheap knob does not exist.** `litert_lm_sampler_params_set_seed` exists, so N sequential seeded runs are possible at N× cost — the expensive form, with no v1 consumer. **V14 is deleted as a feature.** | V14 |
-| **Load from fd** | `litert_lm_engine_settings_create_from_raw_file_descriptor` | Load ODR/PAD-delivered assets without copying 3.66 GB (§7.2). | V35 |
+| **Load from fd** | `litert_lm_engine_settings_create_from_raw_file_descriptor` | Load ODR/PAD-delivered assets without copying 3.66 GB (§7.2). | V32 |
 | **Memory / mmap knobs** | `set_parallel_file_section_loading`, `set_prefill_chunk_size`, `set_cache_dir`, `set_max_num_images`, `set_max_num_tokens` | The tuning surface for the 8 GB iOS floor and #2545/#2799. | V10 |
 | **Conversation clone** | `litert_lm_conversation_clone` | Exists. **This is exactly why V13-as-written is worthless** — see §3.4. | V13 |
 | **Thinking budget** | `litert_lm_thinking_config_*` | Latency control; disable for extraction. | — |
@@ -343,7 +343,7 @@ The two reviewer fixes conflict. A10 says pin the model in `Library/Application 
 - iOS: hold an `NSBundleResourceRequest` across the inference session (`beginAccessingResources` / `endAccessingResources`); **re-resolve the path at every launch**; treat eviction between sessions as normal.
 - Android: resolve `AssetPackLocation.assetsPath()` at every launch.
 - Feed the resolved path — or better, a file descriptor via `litert_lm_engine_settings_create_from_raw_file_descriptor` **[VERIFIED symbol]** — into the engine.
-- **Unverified and load-bearing (V34):** whether a PAD-delivered `.litertlm` is stored uncompressed and `mmap`-able. LiteRT-LM `mmap`s model sections, and #2545 shows the failure mode is a false "ready" followed by a NULL deref, not a clean error.
+- **Unverified and load-bearing (V32):** whether a PAD-delivered `.litertlm` is stored uncompressed and `mmap`-able. LiteRT-LM `mmap`s model sections, and #2545 shows the failure mode is a false "ready" followed by a NULL deref, not a clean error.
 - **Consequence the reviewers did not state, and it cuts both ways (V49):** store-delivered packs version with the app bundle. That *shrinks* the JS↔model skew problem in §7.3 — but it removes any independent model hotfix. Verify the coupling on both stores rather than assuming it.
 
 ### 7.3 The model is a third versioned artifact

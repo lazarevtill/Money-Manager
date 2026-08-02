@@ -30,7 +30,11 @@ Slot A is the one that gates the product's shape. If it is missing, buy one sub-
 | Galaxy Tab S8 Ultra | Snapdragon 8 Gen 1 | Adreno 730 | 8–16 GB | — | B *(not yet verified over adb)* |
 | Galaxy Z Fold 7 | Snapdragon (8 Elite class) | Adreno | 12–16 GB | — | B *(not yet verified over adb)* |
 
-**V29 is runnable today.** The Mali-G78 on the Exynos 2100 is the exact GPU family that issue #2421 reports failing, so the gate that decides the product's shape can be exercised on hardware already in hand.
+**V29 is runnable today — as a proxy, and that word is load-bearing.** Issue #2421 reports `CL_INVALID_COMMAND_QUEUE` on **Mali-G715 / Tensor G4 / Dimensity** (app-layers §3.4, register V29). The S21+ carries **Mali-G78**: same vendor and driver stack, but 2nd-generation Valhall on the r38 line versus G715's 4th-generation on a newer line.
+
+**Consequence for how results may be read.** A green V29 on this device licenses a **G78-class allowlist entry**. It does *not* license "GPU everywhere", and it does not close V29 — the reported failure is on a GPU generation this device does not have. A **red** result here is far more informative than a green one: failure on an older, simpler Valhall part would suggest something broader than a G715 driver bug.
+
+Closing V29 properly still requires a G715-class or Dimensity device. This raises the cheap Dimensity handset from "highest-value purchase" to **the thing that actually closes the gate**.
 
 Three facts from the pull that change what this device can and cannot tell us:
 
@@ -57,8 +61,14 @@ This gap does not block anything now. It becomes blocking before the fallback la
 4. Record after every turn: success/failure, tokens/sec decode, peak RSS, GPU driver messages from `logcat`.
 5. Repeat the whole run three times from a cold start.
 
-**Pass:** 60/60 turns complete on slot A with no driver fault and no monotonic RSS growth across turns.
-**Fail:** any driver-level GPU fault, hang, or process death.
+**Pass:** all **120** turns complete (3 cold starts × [20 fresh + 20 multi-turn]) with no driver fault and no monotonic RSS growth across turns.
+**Fail:** any driver-level GPU fault — `CL_INVALID_COMMAND_QUEUE` specifically — hang, or process death.
+
+**Every run must be attributable and transferable, or the result is not usable later:**
+
+- Pin the exact LiteRT-LM **revision** and record the artifact **hash** (invariant R-ENG-1). "We tested LiteRT-LM" is not a result; "we tested revision `abc123`, sha256 `…`" is.
+- Log per run: `{revision, artifact_hash, backend, SoC, GL_RENDERER, driver version, model file + quant, ambient temp / thermal state}`. `GL_RENDERER` on this device reads `Mali-G78` with driver `r38p0`.
+- **Before declaring V29 green, reproduce at least one green run from inside an installed APK, not only the adb-shell CLI.** SELinux domain, app memory limits, and GPU driver context all differ in-app. Upstream benchmarks do run via `adb shell`, and a result that does not transfer to app context is worse than no result — it licenses building on a false green.
 
 **Stop-loss — no debate, no meeting:** if slot A has no green run by **end of week 2**, adopt fallback rung 1 (GPU allowlist; Mali-class devices go CPU) immediately.
 
@@ -70,12 +80,14 @@ This gap does not block anything now. It becomes blocking before the fallback la
 
 **Question.** Are Google's prebuilt LiteRT-LM `.so` files 16 KB-aligned?
 
-**Why it is week 1 and not later.** Failure blocks **every Play upload**, and the remedy is a multi-day source build. Discovering this in week 10 costs the release date. It needs no special hardware — run it on day 1 regardless of the device situation.
+**Why it is week 1 and not later.** The requirement is real and already in force: since **2025-11-01**, new apps and updates targeting Android 15+ must support 16 KB page sizes, and this app must target API 36 by 2026-08-31 regardless. Failure blocks **every Play upload**, and the remedy is a multi-day source build. It needs no special hardware — run it on day 1.
 
-**Method.** `objdump -p liblitert*.so | grep LOAD` and confirm alignment is `2**14`, on every shipped `.so` including transitive dependencies. NDK r28+.
+**Method.** `objdump -p <lib>.so | grep LOAD` and confirm **alignment ≥ `2**14`** on **every shipped `.so`**, not just `liblitert*` — SQLCipher/op-sqlite, Hermes, and every transitive native dependency. Build with **NDK r28+**, where 16 KB ELF alignment is the linker *default*; r27 supports it only as an opt-in flag, so a build on the currently-installed r27 can produce 4 KB-aligned output and fail this gate for a reason that is ours, not upstream's.
 
-**Pass:** all segments 16 KB-aligned.
+**Pass:** every segment ≥ `2**14`. Note `2**16` also passes and is common — do not test for equality with `2**14`.
 **Fail:** schedule the source build immediately; it is on the critical path from that moment.
+
+**On runtime validation.** The connected S21+ reports `PAGE_SIZE` 4096 and cannot exercise 16 KB behaviour, but that does not mean runtime validation is impossible — Android emulator 16 KB system images exist, and Pixel 8+ has a developer option to boot a 16 KB kernel. The static check remains the CI gate because it is cheap, deterministic, and covers every library; treat runtime validation as a useful supplement, not as unavailable.
 
 **Result:** _not yet run_
 
@@ -118,13 +130,17 @@ This gap does not block anything now. It becomes blocking before the fallback la
 
 ---
 
-## 6. V32 — PAD split and mmap-ability
+## 6. V32 — PAD split and mmap-ability **(split: half here, half in weeks 3–4)**
 
-**Question.** Can a Play Asset Delivery-delivered `.litertlm` be mmap'd via `litert_lm_engine_settings_create_from_raw_file_descriptor`, without copying 3.66 GB?
+The register schedules V32 for weeks 3–4 and its method requires uploading a real 3-pack split to the Play internal track — which is not runnable as a pre-repo spike. The gate splits cleanly:
+
+**V32a — fd/mmap, runnable now.** Can a PAD-delivered `.litertlm` be mmap'd via `litert_lm_engine_settings_create_from_raw_file_descriptor` without copying 3.66 GB? Spike this locally with `bundletool` local-testing, which produces the same on-device asset-pack layout without a Play upload.
+
+**V32b — Play-reported compressed sizes, weeks 3–4.** Verify Play reports each pack ≤1.5 GB compressed. Requires a real internal-track upload and therefore a signed build and a Play listing; it cannot move earlier.
 
 **Why it matters.** If PAD assets cannot be loaded from an fd, the model must be copied out of the asset pack into app storage — doubling both storage use and first-run time, and reopening the self-hosted-download question that `app-layers.md` R4 closed.
 
-**Result:** _not yet run_
+**Result:** V32a _not yet run_ · V32b _blocked until a signed build exists_
 
 ---
 
@@ -143,8 +159,9 @@ This gap does not block anything now. It becomes blocking before the fallback la
 
 | Outcome | Consequence |
 | --- | --- |
-| V29 green on Mali | Plan proceeds as written. GPU everywhere, E4B on Android. |
-| V29 red on Mali, green on Adreno | Fallback rung 1: GPU allowlist. Mali-class devices go CPU + E2B (rung 2). Confirms the fault is Mali-specific. |
+| V29 green on the S21+ (G78) | **Licenses a G78-class allowlist entry only.** Not "GPU everywhere" — the reported failure is on G715/Tensor G4, which this device is not. V29 stays open until a G715-class device runs it. |
+| V29 red on the S21+ (G78) | More informative than green. Failure on an older, simpler Valhall part suggests something broader than a G715 driver bug — go straight to fallback rung 1 and treat GPU as opt-in per chipset. |
+| V29 red on G715/Dimensity, green on Adreno | Fallback rung 1: GPU allowlist. Mali-class devices go CPU + E2B (rung 2). Confirms the fault is Mali-specific, as #2421 reports. |
 | V29 red on both | Fallback rung 2 or 3 globally. CPU-only at 17.7 tok/s decode is a background queue, not interactive — the product's UX assumptions change and the plan needs rewriting, not adjusting. |
 | V0 finds no clean revision | The engine decision itself reopens. `llama.rn` + GBNF becomes the live contingency, and the Gemma 4 PLE question from the first research pass becomes blocking again. |
 | V26 fails | Source build on the critical path from day 1. |

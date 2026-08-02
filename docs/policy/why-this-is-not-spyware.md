@@ -8,7 +8,7 @@ Engineering detail: [`../research/2026-08-02-app-layers.md`](../research/2026-08
 
 It is a personal expense manager. It reads transaction alerts that the user's own bank posts as notifications, extracts the amount, currency, merchant and date, and records them as expenses the user reviews and confirms.
 
-Extraction runs **entirely on the device**, using a language model bundled with the app. There is no server. The app has no account, no login, and no backend to send anything to.
+Extraction runs **entirely on the device**, using a language model bundled with the app. **No server receives captured content.** The app has no account and no login, and there is no backend that transaction data is sent to. The app's small number of outbound requests are listed in full under "Network activity" below.
 
 ## Why notification access is the core functionality
 
@@ -24,8 +24,10 @@ The first statement in `onNotificationPosted` compares the posting package again
 **2. Nothing captured is transmitted anywhere.**
 v1 has no network destination for captured content. No analytics SDK, no ad SDK, no third-party inference API, no sync service. This is not a policy promise layered over a capable system — the capability does not exist in the build.
 
-**3. The app executes nothing it receives from a network.**
-Any remote response — currency reference rates, the signed institution allowlist — is parsed as data. It cannot become a command, a tool call, or code. There is no remote-control surface and therefore no backdoor.
+**3. The app executes no code it receives from a network.**
+The app does fetch a small, signed configuration file — the list of financial institutions to capture from, and operational settings such as which device classes may use GPU acceleration. That file is **data**: it is signature-verified, parsed into a fixed schema, and can only populate values the app already understands. It cannot introduce a command, a tool call, or executable code, and it cannot widen what the app captures beyond the institution category. Currency reference rates are handled the same way.
+
+We state the channel plainly rather than claiming none exists, because one does and a reviewer inspecting traffic will see it. What does not exist is any path by which a remote party can make this app run code or perform an operation the user did not initiate.
 
 **4. The app is always visible as itself.**
 Unique launcher icon, app name always displayed, no activity-alias icon hiding, an in-app indicator whenever capture is enabled, and an ongoing status notification while it is active. The user cannot be unaware the app is running, and nothing about it is designed to be inconspicuous.
@@ -45,10 +47,18 @@ The database is encrypted at rest. The user can review every captured item, dele
 
 The app **does not collect** data as Play defines collection: no captured content is transmitted off the device. Financial data is processed on-device only.
 
-Two disclosures are made honestly rather than minimised:
+### Network activity — the complete list
 
-- **Crash reporting is opt-in, off by default,** and reports carry no notification content, no message bodies, and no transaction values. When enabled it is the only outbound path in the app.
-- **Currency reference rates** are fetched from a public rate source. This is an outbound request that carries no user data — it asks for published exchange rates and nothing about the user is included.
+Three outbound paths exist. None carries captured content, and none is omitted here.
+
+| Path | Direction | Carries user data? |
+| --- | --- | --- |
+| **Model download** (Play Asset Delivery) | inbound | No. Play serves the model file; the request says nothing about the user |
+| **Currency reference rates** | inbound | No. Asks a public source for published exchange rates |
+| **Signed configuration** (institution list, operational settings) | inbound | No. Fetches a signed file; sends nothing about the user |
+| **Crash reporting** | outbound | **Opt-in, off by default.** Carries no notification content, no message bodies, no transaction values |
+
+Crash reporting is the only path that transmits anything at all, and it is disabled unless the user turns it on.
 
 ## Verifying these claims
 
