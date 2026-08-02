@@ -2,6 +2,8 @@
 
 Date: 2026-08-02 · Supersedes: nothing (first architecture doc) · Companion research: `docs/research/2026-08-02-on-device-ai-stack.md`
 
+> **Scope: v1 is Android only.** iOS is paused — see [`docs/plan/2026-08-03-android-v1.md`](../plan/2026-08-03-android-v1.md), which is authoritative for scope and supersedes §16.4's reduced-iOS proposal. The iOS material below stays because iOS is paused rather than cancelled, and it is the input for resuming. Read every iOS section as deferred, not current.
+
 **Status legend.** **[VERIFIED]** = read from the primary artifact (vendor doc, source file, registry) by this pass or a named prior pass. **[VERIFIED symbol / UNVERIFIED behaviour]** = the API exists in the shipped public header; nothing is known about what it does at runtime. **[REPORTED]** = secondary source or an open third-party bug report, not reproduced. **[INFERRED]** = reasoning from the above, no direct source.
 
 **Section numbers in this document are local.** Where a finding cites "§9c", it means the research doc, not this one.
