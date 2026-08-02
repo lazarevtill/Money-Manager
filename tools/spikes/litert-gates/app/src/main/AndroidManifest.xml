@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:label="LiteRT Gates"
+        android:allowBackup="false">
+
+        <!-- Backend.GPU() requires the native libs be visible to the loader. -->
+        <uses-native-library
+            android:name="libOpenCL.so"
+            android:required="false" />
+        <uses-native-library
+            android:name="libGLES_mali.so"
+            android:required="false" />
+    </application>
+</manifest>

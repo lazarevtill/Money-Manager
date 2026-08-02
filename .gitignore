@@ -1,0 +1,12 @@
+# Gradle / Android build outputs
+build/
+.gradle/
+local.properties
+*.apk
+*.aab
+.cxx/
+
+# Model weights are never committed: 3.66 GB and licence-gated
+*.litertlm
+*.gguf
+*.task
