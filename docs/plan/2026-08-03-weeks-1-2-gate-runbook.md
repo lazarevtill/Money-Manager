@@ -20,27 +20,27 @@ The matrix is a requirement, not a preference — several gates are chipset-spec
 
 Slot A is the one that gates the product's shape. If it is missing, buy one sub-$500 Dimensity handset before starting.
 
-### Devices available (2026-08-03)
+### Devices available
 
-| Device | Chipset | GPU | RAM | Slot | Note |
+**Slot A is covered.** Verified over adb on 2026-08-03:
+
+| Device | Chipset | GPU | RAM | OS | Slot |
 | --- | --- | --- | --- | --- | --- |
-| **Galaxy S21** | Exynos 2100 **or** Snapdragon 888 — depends on variant | Mali-G78 MP14 **or** Adreno 660 | 8 GB | **A, if Exynos** | **Verify the model number.** `SM-G991B` (international/Europe) is Exynos/Mali and covers slot A. `SM-G991U` (US) is Snapdragon/Adreno and does not. |
-| **Galaxy Tab S8 Ultra** | Snapdragon 8 Gen 1 | Adreno 730 | 8–16 GB | B | Sustained-load thermals differ from a phone; useful signal, not a phone substitute |
-| **Galaxy Z Fold 7** | Snapdragon (8 Elite class) | Adreno | 12–16 GB | B | Samsung folds are Snapdragon in all regions |
+| **Galaxy S21+ 5G** (`SM-G996B`) | **Exynos 2100** (`universal2100_r`) | **Mali-G78**, OpenGL ES 3.2, driver `r38p0` | 7.03 GiB usable (8 GB) | Android 15, SDK 35 | **A ✅** |
+| Galaxy Tab S8 Ultra | Snapdragon 8 Gen 1 | Adreno 730 | 8–16 GB | — | B *(not yet verified over adb)* |
+| Galaxy Z Fold 7 | Snapdragon (8 Elite class) | Adreno | 12–16 GB | — | B *(not yet verified over adb)* |
 
-Verify the S21 with either:
+**V29 is runnable today.** The Mali-G78 on the Exynos 2100 is the exact GPU family that issue #2421 reports failing, so the gate that decides the product's shape can be exercised on hardware already in hand.
 
-```bash
-adb shell getprop ro.product.model        # SM-G991B = Exynos/Mali · SM-G991U = Snapdragon/Adreno
-adb shell getprop ro.hardware.chipname    # "exynos2100" or "qcom"
-```
+Three facts from the pull that change what this device can and cannot tell us:
 
-**Two gaps in this set, both real:**
+1. **Page size is 4096 (4 KB), so this device cannot runtime-validate V26.** Android 15+ permits 16 KB pages, but this build does not use them. V26 therefore stays a **static, device-independent `objdump` check** on the shipped `.so` files — it cannot be discharged by "it ran fine on the S21+". Do not let a green run here be read as V26 passing.
+2. **Android 15 / SDK 35 cannot exercise SDK 36 runtime behaviour.** Play requires targetSdk 36 by 2026-08-31. An app targeting 36 installs and runs here, but any behaviour gated on the *device* API level stays dormant, so foreground-service and notification changes introduced in Android 16 are untestable on this device.
+3. **7.03 GiB usable is comfortable for E4B but not representative.** E4B peaks around 3.4 GB on the GPU backend; that fits here with room to spare. It says nothing about the 4–6 GB tier.
 
-1. **Slot A hangs on one coin-flip.** If the S21 is the US Snapdragon variant, there is no Mali device at all and V29 — the gate that decides the product's shape — cannot run. Buy one sub-$500 Dimensity handset in that case.
-2. **Slot C is not covered, and neither is the target market.** All three devices are premium Samsung with 8–16 GB RAM. The LATAM market this product targets runs entry and mid-tier Dimensity and low-RAM Snapdragon. These devices will happily run E4B and tell you nothing about whether the E2B/CPU fallback tier is viable, or how the app behaves at 4–6 GB. **They test the happy path.** A single cheap Dimensity device covers both gaps at once and is the highest-value purchase in the project.
+**Remaining gap — slot C and the target market.** All three devices are premium Samsung flagships. The LATAM market runs entry and mid-tier Dimensity at 4–6 GB. This set will run E4B comfortably and cannot tell us whether fallback rung 2 (E2B on CPU) is viable, which is precisely the tier Mali-class devices land on if V29 fails. **One cheap Dimensity handset remains the highest-value purchase in the project** — it covers the low-RAM tier, a second Mali implementation, and the actual market profile at once.
 
-Neither gap blocks starting: V26, V0, V13, V34 and V32 all run on what is already here, and V29 runs today if the S21 is Exynos.
+This gap does not block anything now. It becomes blocking before the fallback ladder can be validated or the release can claim device coverage.
 
 ---
 
