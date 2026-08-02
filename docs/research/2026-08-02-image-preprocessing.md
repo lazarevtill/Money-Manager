@@ -185,9 +185,13 @@ The schema already anticipates this — `media_assets.original_deleted_at` exist
 
 ---
 
-## 7. Schema delta required
+## 7. Schema delta — APPLIED 2026-08-02
 
-`media_assets` as written models thumbnails but not the crop/segment lineage this pipeline produces. **Requested change, to be applied by the data-layer workstream** — deliberately not edited into `03-schema.md` here, because that file is under active revision:
+`media_assets` as written modelled thumbnails but not the crop/segment lineage this pipeline produces.
+
+**Status: applied** to `data-layer/03-schema.md` §3.10 during reconciliation, in the final form below rather than as `ALTER TABLE` statements — the schema has not shipped, so the columns are in the `CREATE TABLE` directly. `thumbnail_of` was **generalized to `derived_from`**, since a thumbnail is just one derivation and crops/segments want the identical `ON DELETE CASCADE`. Four `CHECK` constraints were added to keep the lineage columns meaningful only together, plus two partial indexes (`ix_media_derived`, `ix_media_crop_method`).
+
+The originally requested delta, kept for the record:
 
 ```sql
 -- 1. kind: add the derived receipt artifacts

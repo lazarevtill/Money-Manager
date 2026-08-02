@@ -1917,9 +1917,32 @@ CREATE TABLE media_assets (
   bytes         INTEGER NOT NULL CHECK (bytes >= 0),
   mime          TEXT NOT NULL,
   kind          TEXT NOT NULL CHECK (kind IN (
-                  'receipt_image','screenshot','voice_audio','statement_pdf','thumbnail')),
+                  'receipt_image','screenshot','voice_audio','statement_pdf','thumbnail',
+                  -- derived artifacts of the L1 crop/segment pipeline (see
+                  -- ../2026-08-02-image-preprocessing.md). They are DERIVED, never authoritative:
+                  -- re-extraction after a model upgrade always re-derives from the original, so a
+                  -- cropping bug is never baked in permanently.
+                  'receipt_crop','receipt_segment')),
   width         INTEGER, height INTEGER,
-  thumbnail_of  TEXT REFERENCES media_assets(id) ON DELETE CASCADE,
+  -- Lineage. Generalized from the original `thumbnail_of`: a thumbnail is just one derivation, and
+  -- crops/segments want the identical ON DELETE CASCADE — delete the original and every artifact
+  -- derived from it goes too, which is exactly the "free up space" semantics.
+  derived_from  TEXT REFERENCES media_assets(id) ON DELETE CASCADE,
+  derivation_kind TEXT CHECK (derivation_kind IN ('thumbnail','content_crop','segment')),
+  -- Source geometry in the PARENT's pixel space, so a bad crop is diagnosable after the fact
+  -- without re-running the pipeline, and so a segment can be located in the receipt it came from.
+  src_x         INTEGER, src_y INTEGER, src_w INTEGER, src_h INTEGER,
+  segment_index INTEGER,        -- NULL unless derivation_kind = 'segment'
+  segment_count INTEGER,
+  -- Which tier produced the crop: the platform document scanner's quad, the union of OCR text-line
+  -- boxes, or no crop at all. This is a METRIC, not bookkeeping — it is the only way to learn
+  -- whether the document scanner earns its place on the receipts users actually photograph.
+  crop_method   TEXT CHECK (crop_method IN ('scanner_quad','ocr_union','none')),
+  -- Lineage columns are meaningful only together, and only on a derived row.
+  CHECK ((derived_from IS NULL) = (derivation_kind IS NULL)),
+  CHECK (derivation_kind IS NOT NULL OR (segment_index IS NULL AND segment_count IS NULL)),
+  CHECK ((segment_index IS NULL) = (segment_count IS NULL)),
+  CHECK (segment_index IS NULL OR (segment_index >= 0 AND segment_index < segment_count)),
   -- "free up space" deletes originals while retaining thumbnails and the extracted data
   original_deleted_at INTEGER,
   -- weekly reconciliation both ways: files with no row are orphans (delete after 24 h grace);
@@ -1932,6 +1955,12 @@ CREATE TABLE media_assets (
 CREATE INDEX ix_media_sha  ON media_assets(sha256_hex);
 CREATE INDEX ix_media_kind ON media_assets(kind, created_at DESC);
 CREATE INDEX ix_media_missing ON media_assets(missing_since) WHERE missing_since IS NOT NULL;
+-- Fetch every artifact derived from one original (segment merge, diagnosis, cascade preview).
+CREATE INDEX ix_media_derived ON media_assets(derived_from, segment_index)
+  WHERE derived_from IS NOT NULL;
+-- Field measurement of scanner-quad vs OCR-union vs no-crop rates, feeding the metrics ledger.
+CREATE INDEX ix_media_crop_method ON media_assets(crop_method, created_at DESC)
+  WHERE crop_method IS NOT NULL;
 ```
 
 **The export/backup path must bundle the `.db` *and* the media directory or the restore is

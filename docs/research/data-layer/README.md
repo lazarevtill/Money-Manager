@@ -34,14 +34,15 @@ These belong in `CLAUDE.md` before implementation starts. Each traces to a speci
 8. **All value writes pass through one chokepoint** so a re-parse can never silently overwrite a user correction.
 9. **Ordering is by sequence number, never wall clock.** A flat battery or an NTP correction otherwise reorders edits invisibly.
 
-## Cross-workstream dependencies
+## Cross-workstream dependencies — reconciled 2026-08-02
 
-- **Foundation → storage, resolved.** `app-layers.md` §2.4 confirms prebuild + New Architecture leaves `op-sqlite`, `expo-sqlite`, and WatermelonDB all available. This design assumes **op-sqlite 17.1.3 with SQLCipher**, SQLite 3.51.3, all tables `STRICT`.
-- **Image preprocessing → schema, outstanding.** [`../2026-08-02-image-preprocessing.md`](../2026-08-02-image-preprocessing.md) §7 requests a `media_assets` delta (derivation lineage, source geometry, segment index, `crop_method`). Not yet applied.
+- **Foundation → storage: compatible, no change needed.** The two workstreams chose independently and agreed. `app-layers.md` §2.4 calls `op-sqlite` "the natural fit" (Nitro-based, same toolchain as the inference module) on RN 0.86.2 + Expo 57 prebuild + New Architecture; this design's D1 independently pins **`@op-engineering/op-sqlite` 17.1.3 with `sqlcipher` + `fts5`**, SQLite 3.51.3, all tables `STRICT`. `fts5` is not optional — §3.17 depends on it. Expo Go was already impossible from day one because of the custom native module, so nothing is lost.
+- **Image preprocessing → schema: applied.** The `media_assets` delta from [`../2026-08-02-image-preprocessing.md`](../2026-08-02-image-preprocessing.md) §7 is in §3.10 — `derived_from` (generalizing `thumbnail_of`), `derivation_kind`, source geometry, `segment_index`/`segment_count`, `crop_method`, four lineage `CHECK`s, two partial indexes.
+- **Image preprocessing → escalation policy: applied.** `app-layers.md` §8.5 now gates VLM escalation on aspect ratio as well as confidence. Escalating an unsegmented long receipt can score worse than the OCR path it escalated from, so V16 must be run on segmented input and its sample must include long till rolls.
 - **Backup must bundle the media directory, not just the `.db`.** A restore that omits it is silently incomplete, and there is no cloud copy to repair from.
 
 ## Known-open, before implementation
 
-- The `media_assets` delta above.
 - Gates G-1–G-39 in `07-platforms-risks.md` — the ones marked blocking must be closed before the corresponding code is written.
 - The iOS engine decision in `app-layers.md` §16.4 affects which platform this schema is exercised on first, but not the schema itself.
+- The Gemma 4 tiling experiment in `../2026-08-02-image-preprocessing.md` §11 item 3. If the model already tiles tall images internally, the segmentation machinery — and the `segment_*` columns above — may be unnecessary. Cheap to run, and it should be run before that code is written.
