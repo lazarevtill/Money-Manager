@@ -8,13 +8,20 @@ app code on it and do not import from it.
 
 ## Gates covered
 
-| Gate | Test | Needs device |
-| --- | --- | --- |
-| V26 | `v26-alignment-check.sh` | No |
-| V34 false-ready smoke | `GateTests.v34_knownAnswerSmoke` | Yes |
-| V13 clone independence | `GateTests.v13_cloneIndependence` | Yes |
-| V0 digit fidelity | `GateTests.v0_digitFidelity_{cpu,gpu}` | Yes |
-| V29 Mali multi-turn GPU | `GateTests.v29_maliMultiTurnGpu` | Yes, Mali |
+| Gate | Test | Needs device | Needs model |
+| --- | --- | --- | --- |
+| V26 | `v26-alignment-check.sh` | No | No |
+| _(device profile — not a gate)_ | `GateTests.deviceProfile` | Yes | **No** |
+| V34 false-ready smoke | `GateTests.v34_knownAnswerSmoke` | Yes | Yes |
+| V13 clone independence | `GateTests.v13_cloneIndependence` | Yes | Yes |
+| V0 digit fidelity | `GateTests.v0_digitFidelity_{cpu,gpu}` | Yes | Yes |
+| V29 Mali multi-turn GPU | `GateTests.v29_maliMultiTurnGpu` | Yes, Mali | Yes |
+
+**Run `deviceProfile` first on any new device.** It needs no model, so it works the moment a
+phone is plugged in, and it proves the provenance path (EGL / `GL_RENDERER`, page size, SoC)
+actually executes. Every other test skips without the model, so without it none of that code
+has ever run — and discovering a blank provenance field after pushing 3.66 GB wastes the
+session. It also answers slot A vs slot B from `GL_RENDERER` rather than from the model number.
 
 ## Why instrumented tests rather than an adb-shell CLI
 
