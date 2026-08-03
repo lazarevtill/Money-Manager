@@ -1,0 +1,15 @@
+{
+  "name": "money-manager",
+  "private": true,
+  "packageManager": "npm@11.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "node --test packages/*/test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
