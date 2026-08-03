@@ -124,33 +124,43 @@ A second artifact exists in the same repo, `gemma-4-E4B-it-web.litertlm` (2,969,
 
 **Stop-loss — no debate, no meeting:** if slot A has no green run by **end of week 2**, adopt fallback rung 1 (GPU allowlist; Mali-class devices go CPU) immediately.
 
-### Result: **INCONCLUSIVE — run did not complete, device disconnected** (attempt 2, 2026-08-03)
+### Result: **PASS — 120/120 turns, Mali-G78, E2B, GPU** — 2026-08-03
 
-E2B on GPU works (see below), so V29 became runnable and was started: 120 turns, Mali-G78, E2B.
-**It did not produce a result.** The instrumentation emitted no OK or failure line, the device
-then stopped responding to `adb` (`no devices/emulators found`), and `gate-results.json` could
-not be pulled.
+| | |
+| --- | --- |
+| Turns completed | **120 / 120** (3 cold starts × [20 fresh + 20 multi-turn]) |
+| `CL_INVALID_COMMAND_QUEUE` | **none** |
+| Errors | none |
+| RSS across 60 sampled turns | min 1,796,060 kB · max 2,240,828 kB |
+| RSS growth first→last sample | **−109,156 kB** (it went *down*) |
+| Backend / model | GPU / `gemma-4-E2B-it.litertlm`, 2,588,147,712 bytes |
 
-**This is not a pass and not a fail.** Two explanations are consistent with what was observed and
-cannot be separated without the device:
+No driver fault and no monotonic RSS growth. Both pass criteria met.
 
-1. The phone was physically unplugged mid-run (it is shared with other work, and max performance
-   mode had just been enabled by hand).
-2. The device crashed, rebooted, or dropped USB under sustained GPU load — which would itself be
-   a serious V29-relevant finding.
+**A note on how this was nearly lost.** The run appeared to fail: instrumentation printed no
+verdict and the device stopped answering `adb`. It was recorded as inconclusive. In fact the test
+had completed and written its result; the `signal 9` seen in logcat was the process being reaped
+*after* `record()`, during teardown. **The verdict was on the device the whole time.** This is
+precisely why the harness now checkpoints every turn — and the lesson generalises: on a long
+device gate, trust the on-device record over the terminal.
 
-**Recovery path, first thing on reconnect:** the results file is written on the device after each
-gate, so `adb pull .../gate-results.json` may still contain a completed V29 record. Pull before
-re-running. If it is absent, re-run with the device on a stable connection and, ideally, without
-a hand-set performance mode.
+### What this result does and does not license
 
-**Confound to remove on the re-run:** performance mode was set to maximum by hand partway through.
-That is not how a user's phone behaves, so a green under those conditions would not generalise —
-and it also changes thermal behaviour, which is exactly what a sustained-load gate is measuring.
-Record the performance/thermal state as part of provenance next time; the runbook already asks for
-it and the harness does not yet capture it.
+**Does:** GPU inference with E2B is viable on Mali-G78, over sustained multi-turn use, with no
+leak. Fallback rung 2 is not a fallback — it is the working configuration.
 
-Last thermal reading before the disconnect: AP 44.4 °C, `mStatus=0` (no throttling).
+**Does not:**
+
+1. **It is not a #2421 clearance.** #2421 is reported on **Mali-G715 / Tensor G4**; this is
+   **Mali-G78**, an older Valhall generation on the r38 driver. A G715-class or Dimensity device
+   is still what closes that question. This licenses a **G78-class allowlist entry**.
+2. **Performance mode was set to maximum by hand partway through the run.** That is not how a
+   user's phone behaves. It raises sustained clocks — arguably a harsher GPU test, but also a
+   configuration no user will be in. **Re-run at default before treating this as the shipping
+   configuration.** The harness now records thermal state per turn so a repeat is interpretable;
+   this run predates that and carries no thermal samples.
+3. **It says nothing about E4B**, which OOMs on GPU on this device (§1, attempt 1), or about the
+   4–6 GB tier.
 
 ### Attempt 1: **BLOCKED BY MEMORY, not by the driver bug** — 2026-08-03
 
