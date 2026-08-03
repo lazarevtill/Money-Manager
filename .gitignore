@@ -10,3 +10,8 @@ local.properties
 *.litertlm
 *.gguf
 *.task
+
+# device pulls used while debugging gates
+_r.json
+_p.json
+device-profile.json
