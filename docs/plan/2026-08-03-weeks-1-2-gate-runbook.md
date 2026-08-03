@@ -99,7 +99,41 @@ A second artifact exists in the same repo, `gemma-4-E4B-it-web.litertlm` (2,969,
 
 **Stop-loss — no debate, no meeting:** if slot A has no green run by **end of week 2**, adopt fallback rung 1 (GPU allowlist; Mali-class devices go CPU) immediately.
 
-**Result:** _not yet run_
+### Result: **BLOCKED BY MEMORY, not by the driver bug** — 2026-08-03
+
+V29 cannot run as specified on this device with E4B. Establishing that is itself a result.
+
+Running V0 on the **GPU** backend kills the process:
+
+```
+I/Zygote: Process 29156 exited due to signal 9 (Killed)
+W/ActivityManager: Rescheduling restart of crashed service ... for mem-pressure-event
+MemAvailable: 3,091,188 kB          # ~3.0 GB free
+```
+
+**This is SIGKILL under memory pressure, NOT `CL_INVALID_COMMAND_QUEUE`.** It is not the #2421
+signature and must not be recorded as a V29 result. The same fixtures pass on CPU on the same
+device, so the model and the harness are fine — the GPU backend needs its own copy of the weights
+and ~3.4 GB peak does not fit in ~3.0 GB available.
+
+**What this means for the plan, which assumed GPU + E4B on Android:**
+
+- **E4B on GPU is not viable on an 8 GB device.** The S21+ has 7.03 GiB total. The LATAM target tier
+  is 4–6 GB, so if it does not fit here it certainly does not fit there.
+- **E4B on CPU works** but costs ~21 s per extraction. That is a background queue, not an
+  interactive feature — the UX assumption in the plan needs revisiting either way.
+- **The Mali driver question is still open.** OOM masked it. Whether this GPU hits #2421 is
+  unknown, and a device with more RAM or a smaller model is needed to find out.
+
+**Next step, in progress:** test with **E2B** (`gemma-4-E2B-it.litertlm`, 2,588,147,712 bytes,
+ungated). It separates the two failure modes — if GPU works with E2B, the problem is memory and
+fallback rung 2 is validated; if GPU still faults with `CL_INVALID_COMMAND_QUEUE`, that is a real
+#2421-class hit on Mali-G78 and the GPU allowlist becomes the plan.
+
+Incidental confirmation from the load log: `signature=per_layer_embedder` — **LiteRT-LM does
+execute Gemma 4's Per-Layer Embeddings**, which is exactly what llama.cpp issue #22243 reports
+missing there. That strengthens the LiteRT-LM-over-llama.rn decision on evidence rather than
+assumption.
 
 ---
 
@@ -185,7 +219,7 @@ separator with three trailing digits on a 2-decimal currency, where `1.299` is e
 **Caveat on scope:** 10 fixtures, one backend, one model revision. This shows the contract is
 sound, not that extraction is solved. The real eval corpus is still to be built.
 
-**Result:** CPU **PASS 10/10**. GPU: _pending_
+**Result:** CPU **PASS 10/10** (207 s for 10 extractions, ~21 s each). GPU **CANNOT RUN — out of memory, see §1**.
 
 ---
 
