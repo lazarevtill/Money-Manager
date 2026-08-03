@@ -1,0 +1,974 @@
+[
+  {
+    "gate": "V0",
+    "provenance": {
+      "litertlm_version": "0.15.0",
+      "model_file": "model.litertlm",
+      "model_sha256_prefix": "588da732578dc336",
+      "model_bytes": 2588147712,
+      "backend": "GPU",
+      "soc_manufacturer": "Samsung",
+      "soc_model": "Exynos 2100",
+      "device": "SM-G996B",
+      "android_sdk": 35,
+      "gl_renderer": "Mali-G78",
+      "gl_version": "OpenGL ES 3.2 v1.r38p0-01eac0-mbs2v41_0.4ef6e1c9ba431853d05b271234c3d1c5",
+      "page_size": 4096
+    },
+    "total": 10,
+    "exact": 10,
+    "failures": [],
+    "pass": true
+  },
+  {
+    "gate": "V29",
+    "provenance": {
+      "litertlm_version": "0.15.0",
+      "model_file": "model.litertlm",
+      "model_sha256_prefix": "588da732578dc336",
+      "model_bytes": 2588147712,
+      "backend": "GPU",
+      "soc_manufacturer": "Samsung",
+      "soc_model": "Exynos 2100",
+      "device": "SM-G996B",
+      "android_sdk": 35,
+      "gl_renderer": "Mali-G78",
+      "gl_version": "OpenGL ES 3.2 v1.r38p0-01eac0-mbs2v41_0.4ef6e1c9ba431853d05b271234c3d1c5",
+      "page_size": 4096
+    },
+    "turns_completed": 120,
+    "turns_expected": 120,
+    "rss_samples": [
+      {
+        "turn": 21,
+        "rss_kb": 2203772
+      },
+      {
+        "turn": 22,
+        "rss_kb": 2190732
+      },
+      {
+        "turn": 23,
+        "rss_kb": 2196128
+      },
+      {
+        "turn": 24,
+        "rss_kb": 2203580
+      },
+      {
+        "turn": 25,
+        "rss_kb": 2215164
+      },
+      {
+        "turn": 26,
+        "rss_kb": 2224188
+      },
+      {
+        "turn": 27,
+        "rss_kb": 2224792
+      },
+      {
+        "turn": 28,
+        "rss_kb": 2214264
+      },
+      {
+        "turn": 29,
+        "rss_kb": 2214484
+      },
+      {
+        "turn": 30,
+        "rss_kb": 2214552
+      },
+      {
+        "turn": 31,
+        "rss_kb": 2214448
+      },
+      {
+        "turn": 32,
+        "rss_kb": 2214588
+      },
+      {
+        "turn": 33,
+        "rss_kb": 2214036
+      },
+      {
+        "turn": 34,
+        "rss_kb": 2213908
+      },
+      {
+        "turn": 35,
+        "rss_kb": 2214144
+      },
+      {
+        "turn": 36,
+        "rss_kb": 2214216
+      },
+      {
+        "turn": 37,
+        "rss_kb": 2214132
+      },
+      {
+        "turn": 38,
+        "rss_kb": 2213840
+      },
+      {
+        "turn": 39,
+        "rss_kb": 2204476
+      },
+      {
+        "turn": 40,
+        "rss_kb": 1917864
+      },
+      {
+        "turn": 61,
+        "rss_kb": 1847916
+      },
+      {
+        "turn": 62,
+        "rss_kb": 1796060
+      },
+      {
+        "turn": 63,
+        "rss_kb": 1806196
+      },
+      {
+        "turn": 64,
+        "rss_kb": 1816768
+      },
+      {
+        "turn": 65,
+        "rss_kb": 1827456
+      },
+      {
+        "turn": 66,
+        "rss_kb": 1838652
+      },
+      {
+        "turn": 67,
+        "rss_kb": 1842932
+      },
+      {
+        "turn": 68,
+        "rss_kb": 1854236
+      },
+      {
+        "turn": 69,
+        "rss_kb": 1863848
+      },
+      {
+        "turn": 70,
+        "rss_kb": 1869004
+      },
+      {
+        "turn": 71,
+        "rss_kb": 1870880
+      },
+      {
+        "turn": 72,
+        "rss_kb": 1870920
+      },
+      {
+        "turn": 73,
+        "rss_kb": 1861920
+      },
+      {
+        "turn": 74,
+        "rss_kb": 1862176
+      },
+      {
+        "turn": 75,
+        "rss_kb": 1860660
+      },
+      {
+        "turn": 76,
+        "rss_kb": 1860916
+      },
+      {
+        "turn": 77,
+        "rss_kb": 1855628
+      },
+      {
+        "turn": 78,
+        "rss_kb": 1855780
+      },
+      {
+        "turn": 79,
+        "rss_kb": 1852448
+      },
+      {
+        "turn": 80,
+        "rss_kb": 1852584
+      },
+      {
+        "turn": 101,
+        "rss_kb": 2240412
+      },
+      {
+        "turn": 102,
+        "rss_kb": 2240720
+      },
+      {
+        "turn": 103,
+        "rss_kb": 2240828
+      },
+      {
+        "turn": 104,
+        "rss_kb": 2240620
+      },
+      {
+        "turn": 105,
+        "rss_kb": 2240628
+      },
+      {
+        "turn": 106,
+        "rss_kb": 2240704
+      },
+      {
+        "turn": 107,
+        "rss_kb": 2240732
+      },
+      {
+        "turn": 108,
+        "rss_kb": 2240632
+      },
+      {
+        "turn": 109,
+        "rss_kb": 2239992
+      },
+      {
+        "turn": 110,
+        "rss_kb": 2184136
+      },
+      {
+        "turn": 111,
+        "rss_kb": 2184104
+      },
+      {
+        "turn": 112,
+        "rss_kb": 2184088
+      },
+      {
+        "turn": 113,
+        "rss_kb": 2176972
+      },
+      {
+        "turn": 114,
+        "rss_kb": 2115764
+      },
+      {
+        "turn": 115,
+        "rss_kb": 2097552
+      },
+      {
+        "turn": 116,
+        "rss_kb": 2095028
+      },
+      {
+        "turn": 117,
+        "rss_kb": 2095056
+      },
+      {
+        "turn": 118,
+        "rss_kb": 2094940
+      },
+      {
+        "turn": 119,
+        "rss_kb": 2094556
+      },
+      {
+        "turn": 120,
+        "rss_kb": 2094616
+      }
+    ],
+    "pass": true
+  },
+  {
+    "gate": "V29",
+    "provenance": {
+      "litertlm_version": "0.15.0",
+      "model_file": "model.litertlm",
+      "model_sha256_prefix": "588da732578dc336",
+      "model_bytes": 2588147712,
+      "backend": "GPU",
+      "soc_manufacturer": "Samsung",
+      "soc_model": "Exynos 2100",
+      "device": "SM-G996B",
+      "android_sdk": 35,
+      "gl_renderer": "Mali-G78",
+      "gl_version": "OpenGL ES 3.2 v1.r38p0-01eac0-mbs2v41_0.4ef6e1c9ba431853d05b271234c3d1c5",
+      "page_size": 4096,
+      "thermal": {
+        "thermal_status": 0,
+        "power_save_mode": false,
+        "sustained_perf_supported": false,
+        "battery_temp_c": 32.4,
+        "uptime_ms": 1303279828
+      }
+    },
+    "turns_completed": 120,
+    "turns_expected": 120,
+    "rss_samples": [
+      {
+        "turn": 21,
+        "rss_kb": 2270880,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 34.7,
+          "uptime_ms": 1303353222
+        }
+      },
+      {
+        "turn": 22,
+        "rss_kb": 2272004,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 34.7,
+          "uptime_ms": 1303355032
+        }
+      },
+      {
+        "turn": 23,
+        "rss_kb": 2272836,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 34.7,
+          "uptime_ms": 1303357223
+        }
+      },
+      {
+        "turn": 24,
+        "rss_kb": 2259776,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 34.7,
+          "uptime_ms": 1303359049
+        }
+      },
+      {
+        "turn": 25,
+        "rss_kb": 2247352,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 34.7,
+          "uptime_ms": 1303360784
+        }
+      },
+      {
+        "turn": 26,
+        "rss_kb": 2247280,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303362410
+        }
+      },
+      {
+        "turn": 27,
+        "rss_kb": 2244808,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303364266
+        }
+      },
+      {
+        "turn": 28,
+        "rss_kb": 2242548,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303365908
+        }
+      },
+      {
+        "turn": 29,
+        "rss_kb": 2233508,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303367554
+        }
+      },
+      {
+        "turn": 30,
+        "rss_kb": 2223492,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303369878
+        }
+      },
+      {
+        "turn": 31,
+        "rss_kb": 2223564,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303372021
+        }
+      },
+      {
+        "turn": 32,
+        "rss_kb": 2223596,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303373927
+        }
+      },
+      {
+        "turn": 33,
+        "rss_kb": 2223728,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303376199
+        }
+      },
+      {
+        "turn": 34,
+        "rss_kb": 2223568,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303378375
+        }
+      },
+      {
+        "turn": 35,
+        "rss_kb": 2223856,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303380580
+        }
+      },
+      {
+        "turn": 36,
+        "rss_kb": 2223888,
+        "thermal": {
+          "thermal_status": 0,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303382470
+        }
+      },
+      {
+        "turn": 37,
+        "rss_kb": 2223856,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303384611
+        }
+      },
+      {
+        "turn": 38,
+        "rss_kb": 2223832,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303386891
+        }
+      },
+      {
+        "turn": 39,
+        "rss_kb": 2222536,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 35,
+          "uptime_ms": 1303389218
+        }
+      },
+      {
+        "turn": 40,
+        "rss_kb": 2222744,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303392160
+        }
+      },
+      {
+        "turn": 61,
+        "rss_kb": 2300844,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303446670
+        }
+      },
+      {
+        "turn": 62,
+        "rss_kb": 2299476,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303449233
+        }
+      },
+      {
+        "turn": 63,
+        "rss_kb": 2295236,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303452245
+        }
+      },
+      {
+        "turn": 64,
+        "rss_kb": 2295104,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303454916
+        }
+      },
+      {
+        "turn": 65,
+        "rss_kb": 2293840,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303457673
+        }
+      },
+      {
+        "turn": 66,
+        "rss_kb": 2294068,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303460307
+        }
+      },
+      {
+        "turn": 67,
+        "rss_kb": 2293988,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303463212
+        }
+      },
+      {
+        "turn": 68,
+        "rss_kb": 2294108,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303465879
+        }
+      },
+      {
+        "turn": 69,
+        "rss_kb": 2294176,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303468583
+        }
+      },
+      {
+        "turn": 70,
+        "rss_kb": 2294432,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303472151
+        }
+      },
+      {
+        "turn": 71,
+        "rss_kb": 2294052,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303475381
+        }
+      },
+      {
+        "turn": 72,
+        "rss_kb": 2294120,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303478273
+        }
+      },
+      {
+        "turn": 73,
+        "rss_kb": 2294184,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303481735
+        }
+      },
+      {
+        "turn": 74,
+        "rss_kb": 2186032,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303484560
+        }
+      },
+      {
+        "turn": 75,
+        "rss_kb": 2139300,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303488728
+        }
+      },
+      {
+        "turn": 76,
+        "rss_kb": 2142128,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303492415
+        }
+      },
+      {
+        "turn": 77,
+        "rss_kb": 2136448,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303496589
+        }
+      },
+      {
+        "turn": 78,
+        "rss_kb": 2136748,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303500438
+        }
+      },
+      {
+        "turn": 79,
+        "rss_kb": 2135176,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303504476
+        }
+      },
+      {
+        "turn": 80,
+        "rss_kb": 2120176,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303509491
+        }
+      },
+      {
+        "turn": 101,
+        "rss_kb": 2238972,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303594244
+        }
+      },
+      {
+        "turn": 102,
+        "rss_kb": 2238828,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303597713
+        }
+      },
+      {
+        "turn": 103,
+        "rss_kb": 2238792,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303601962
+        }
+      },
+      {
+        "turn": 104,
+        "rss_kb": 2239040,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303605688
+        }
+      },
+      {
+        "turn": 105,
+        "rss_kb": 2239092,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303609554
+        }
+      },
+      {
+        "turn": 106,
+        "rss_kb": 2238872,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303613252
+        }
+      },
+      {
+        "turn": 107,
+        "rss_kb": 2239172,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303617330
+        }
+      },
+      {
+        "turn": 108,
+        "rss_kb": 2189568,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303621466
+        }
+      },
+      {
+        "turn": 109,
+        "rss_kb": 2177956,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303624921
+        }
+      },
+      {
+        "turn": 110,
+        "rss_kb": 2177880,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303629435
+        }
+      },
+      {
+        "turn": 111,
+        "rss_kb": 2159868,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303633508
+        }
+      },
+      {
+        "turn": 112,
+        "rss_kb": 2154840,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303637254
+        }
+      },
+      {
+        "turn": 113,
+        "rss_kb": 2149616,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303641696
+        }
+      },
+      {
+        "turn": 114,
+        "rss_kb": 2149400,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303645865
+        }
+      },
+      {
+        "turn": 115,
+        "rss_kb": 2147236,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303650210
+        }
+      },
+      {
+        "turn": 116,
+        "rss_kb": 2147444,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303653997
+        }
+      },
+      {
+        "turn": 117,
+        "rss_kb": 2142144,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303658174
+        }
+      },
+      {
+        "turn": 118,
+        "rss_kb": 2142136,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303662122
+        }
+      },
+      {
+        "turn": 119,
+        "rss_kb": 2142400,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303666206
+        }
+      },
+      {
+        "turn": 120,
+        "rss_kb": 2139576,
+        "thermal": {
+          "thermal_status": 1,
+          "power_save_mode": false,
+          "sustained_perf_supported": false,
+          "battery_temp_c": 36.1,
+          "uptime_ms": 1303671310
+        }
+      }
+    ],
+    "pass": true
+  }
+]
