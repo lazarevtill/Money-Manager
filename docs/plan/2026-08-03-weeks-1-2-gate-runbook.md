@@ -59,6 +59,22 @@ This gap does not block anything now. It becomes blocking before the fallback la
 
 ---
 
+### Model artifact under test
+
+Every gate result is pinned to this exact artifact (invariant R-ENG-1). "We tested Gemma 4 E4B" is not a result.
+
+| | |
+| --- | --- |
+| Source | `litert-community/gemma-4-E4B-it-litert-lm` on Hugging Face |
+| File | `gemma-4-E4B-it.litertlm` |
+| Size | **3,659,530,240** bytes |
+| SHA-256 | `0b2a8980ce155fd97673d8e820b4d29d9c7d99b8fa6806f425d969b145bd52e0` |
+| Repo status | **Not gated** (`gated: false`, `private: false`) — publicly downloadable, no account or terms acceptance needed to fetch it |
+
+The Gemma **Terms of Use still apply to distribution** — see [`../policy/gemma-licensing.md`](../policy/gemma-licensing.md). Ungated download and unrestricted redistribution are different things: we are still a distributor the moment we ship these weights in an app.
+
+A second artifact exists in the same repo, `gemma-4-E4B-it-web.litertlm` (2,969,059,328 bytes, sha256 `3904d826…`). It is the web-optimised build. **Do not test against it by accident** — a size mismatch is the quickest way to notice.
+
 ## 1. V29 — Mali multi-turn GPU stability **(the gate that decides the product)**
 
 **Question.** Does the GPU backend survive sustained multi-turn generation on Mali, or does it die after 1–3 turns as reported upstream in #2421?
