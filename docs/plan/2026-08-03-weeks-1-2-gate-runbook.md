@@ -124,7 +124,35 @@ A second artifact exists in the same repo, `gemma-4-E4B-it-web.litertlm` (2,969,
 
 **Stop-loss — no debate, no meeting:** if slot A has no green run by **end of week 2**, adopt fallback rung 1 (GPU allowlist; Mali-class devices go CPU) immediately.
 
-### Result: **BLOCKED BY MEMORY, not by the driver bug** — 2026-08-03
+### Result: **INCONCLUSIVE — run did not complete, device disconnected** (attempt 2, 2026-08-03)
+
+E2B on GPU works (see below), so V29 became runnable and was started: 120 turns, Mali-G78, E2B.
+**It did not produce a result.** The instrumentation emitted no OK or failure line, the device
+then stopped responding to `adb` (`no devices/emulators found`), and `gate-results.json` could
+not be pulled.
+
+**This is not a pass and not a fail.** Two explanations are consistent with what was observed and
+cannot be separated without the device:
+
+1. The phone was physically unplugged mid-run (it is shared with other work, and max performance
+   mode had just been enabled by hand).
+2. The device crashed, rebooted, or dropped USB under sustained GPU load — which would itself be
+   a serious V29-relevant finding.
+
+**Recovery path, first thing on reconnect:** the results file is written on the device after each
+gate, so `adb pull .../gate-results.json` may still contain a completed V29 record. Pull before
+re-running. If it is absent, re-run with the device on a stable connection and, ideally, without
+a hand-set performance mode.
+
+**Confound to remove on the re-run:** performance mode was set to maximum by hand partway through.
+That is not how a user's phone behaves, so a green under those conditions would not generalise —
+and it also changes thermal behaviour, which is exactly what a sustained-load gate is measuring.
+Record the performance/thermal state as part of provenance next time; the runbook already asks for
+it and the harness does not yet capture it.
+
+Last thermal reading before the disconnect: AP 44.4 °C, `mStatus=0` (no throttling).
+
+### Attempt 1: **BLOCKED BY MEMORY, not by the driver bug** — 2026-08-03
 
 V29 cannot run as specified on this device with E4B. Establishing that is itself a result.
 
