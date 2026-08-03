@@ -29,11 +29,11 @@ object DigitFixtures {
         Extract the transaction from the bank message below.
 
         Reply with ONLY a JSON object, no prose, no markdown fence:
-        {"amount_minor": <integer minor units>, "currency": "<ISO 4217 code>"}
+        {"amount_text": "<the amount EXACTLY as written>", "currency_guess": "<ISO 4217 code>"}
 
-        amount_minor is the amount in the currency's smallest unit as an integer.
-        For a 2-decimal currency, 1234.56 becomes 123456. For a 0-decimal currency
-        such as CLP or VND, 1234 becomes 1234.
+        Copy amount_text verbatim from the message, including any dots and commas.
+        Do NOT convert it, do NOT reformat it, do NOT do arithmetic. Omit the currency
+        symbol. Example: for "$1.234,56" reply with "1.234,56".
 
         <bank_message>
         $notification
@@ -95,16 +95,32 @@ object DigitFixtures {
     )
 
     /**
-     * Parse the model's reply. Deliberately strict: a reply we cannot parse counts as a
-     * failure, because in production an unparseable reply is exactly as bad as a wrong one.
+     * Parse the model's reply, then normalise DETERMINISTICALLY.
+     *
+     * V0 measures two separable things and reports which one failed:
+     *   1. transcription - did the model copy the digits correctly?
+     *   2. normalisation - does our code turn that text into the right minor units?
+     *
+     * Only the first is the model's job. §4.3 forbids the model doing the second, and V0's
+     * first run is why: asked for a number, Gemma 4 E4B returned 1250000 for
+     * "$1.250.000,00" COP instead of 125000000.
      */
-    fun extractAmount(reply: String): Long? = try {
-        val start = reply.indexOf('{')
-        val end = reply.lastIndexOf('}')
-        if (start < 0 || end <= start) null
-        else JSONObject(reply.substring(start, end + 1)).optLong("amount_minor", Long.MIN_VALUE)
-            .takeIf { it != Long.MIN_VALUE }
-    } catch (t: Throwable) {
-        null
+    data class Parsed(val amountText: String?, val currency: String?, val minorUnits: Long?, val note: String)
+
+    fun parseAndNormalise(reply: String, expectedCurrency: String): Parsed {
+        val obj = try {
+            val start = reply.indexOf('{'); val end = reply.lastIndexOf('}')
+            if (start < 0 || end <= start) null else JSONObject(reply.substring(start, end + 1))
+        } catch (t: Throwable) { null } ?: return Parsed(null, null, null, "unparseable JSON")
+
+        val text = obj.optString("amount_text", "").ifBlank { null }
+            ?: return Parsed(null, obj.optString("currency_guess", null), null, "no amount_text")
+        val cur = obj.optString("currency_guess", "").ifBlank { null } ?: expectedCurrency
+
+        return when (val r = MoneyNormaliser.toMinorUnits(text, cur)) {
+            is MoneyNormaliser.Result.Ok -> Parsed(text, cur, r.minorUnits, "ok")
+            is MoneyNormaliser.Result.Ambiguous -> Parsed(text, cur, null, "ambiguous: ${r.reason}")
+            is MoneyNormaliser.Result.Invalid -> Parsed(text, cur, null, "invalid: ${r.reason}")
+        }
     }
 }

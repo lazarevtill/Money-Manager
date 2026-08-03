@@ -166,11 +166,18 @@ class GateTests {
             for (f in DigitFixtures.all) {
                 eng.createConversation().use { conv ->
                     val reply = conv.sendMessage(DigitFixtures.prompt(f.input)).text()
-                    val got = DigitFixtures.extractAmount(reply)
-                    if (got == f.expectedAmount) exact++
+                    val p = DigitFixtures.parseAndNormalise(reply, f.currency)
+                    if (p.minorUnits == f.expectedAmount) exact++
                     else failures.put(
                         JSONObject().put("input", f.input)
-                            .put("expected", f.expectedAmount).put("got", got).put("raw", reply)
+                            .put("expected", f.expectedAmount)
+                            .put("got", p.minorUnits)
+                            .put("amount_text", p.amountText)
+                            .put("currency", p.currency)
+                            // Separates "the model misread the digits" from "our normaliser
+                            // could not classify them" — different bugs, different owners.
+                            .put("note", p.note)
+                            .put("raw", reply)
                     )
                 }
             }
