@@ -53,7 +53,37 @@ class GateTests {
         put("gl_renderer", glRenderer())
         put("gl_version", glVersion())
         put("page_size", pageSize())
+        put("thermal", thermalSnapshot())
     }
+
+    /**
+     * Thermal and power state. The runbook requires this and the harness did not capture it,
+     * which made the first V29 attempt uninterpretable: max performance mode had been set by
+     * hand, and nothing in the result recorded that.
+     *
+     * A sustained-load gate that does not record thermal state cannot distinguish "the GPU
+     * driver is fine" from "the device throttled so hard it never got stressed".
+     */
+    private fun thermalSnapshot(): JSONObject = JSONObject().apply {
+        val pm = ctx.getSystemService(android.os.PowerManager::class.java)
+        // 0 NONE · 1 LIGHT · 2 MODERATE · 3 SEVERE · 4 CRITICAL · 5 EMERGENCY · 6 SHUTDOWN
+        put("thermal_status", runCatching { pm.currentThermalStatus }.getOrDefault(-1))
+        put("power_save_mode", runCatching { pm.isPowerSaveMode }.getOrDefault(false))
+        put(
+            "sustained_perf_supported",
+            runCatching { pm.isSustainedPerformanceModeSupported }.getOrDefault(false)
+        )
+        put("battery_temp_c", batteryTempC())
+        put("uptime_ms", android.os.SystemClock.elapsedRealtime())
+    }
+
+    /** Battery temperature in tenths of a degree C, per BatteryManager. */
+    private fun batteryTempC(): Double = runCatching {
+        val i = ctx.registerReceiver(
+            null, android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED)
+        )
+        (i?.getIntExtra(android.os.BatteryManager.EXTRA_TEMPERATURE, -1) ?: -1) / 10.0
+    }.getOrDefault(-1.0)
 
     private fun requireModel() = assumeTrue(
         "Model absent at ${modelFile.absolutePath} — push it before running the gates.",
@@ -222,12 +252,24 @@ class GateTests {
                         repeat(MULTI_TURNS) { i ->
                             conv.sendMessage(DigitFixtures.prompt(DigitFixtures.all[i % DigitFixtures.all.size].input))
                             turns++
-                            rssSamples.put(JSONObject().put("turn", turns).put("rss_kb", rssKb()))
+                            // Checkpoint to a separate file every turn. The first V29 attempt
+                            // wrote only on completion, so when the device vanished mid-run the
+                            // entire result was lost and the gate came back inconclusive.
+                            // A gate that can run for 20 minutes must leave evidence as it goes.
+                            checkpoint(turns, coldStart, null)
+                            // Sample per turn: RSS answers "does it leak", thermal answers
+                            // "was it actually under load or did the device throttle away
+                            // the stress this gate exists to apply".
+                            rssSamples.put(
+                                JSONObject().put("turn", turns).put("rss_kb", rssKb())
+                                    .put("thermal", thermalSnapshot())
+                            )
                         }
                     }
                 }
             } catch (t: Throwable) {
                 firstError = "coldStart=$coldStart turn=$turns ${t::class.java.simpleName}: ${t.message}"
+                checkpoint(turns, coldStart, firstError)
                 break@outer
             }
         }
@@ -250,6 +292,26 @@ class GateTests {
      */
     private fun Message.text(): String =
         contents.contents.filterIsInstance<Content.Text>().joinToString("") { it.text }
+
+    /**
+     * Crash-survivable progress marker for long gates. Overwrites a single small file rather
+     * than appending, so it stays cheap enough to call every turn. Read it after any run that
+     * does not produce a verdict — it distinguishes "died at turn 3" from "device unplugged at
+     * turn 118", which are completely different findings.
+     */
+    private fun checkpoint(turns: Int, coldStart: Int, error: String?) {
+        runCatching {
+            File(filesDir, "v29-progress.json").writeText(
+                JSONObject()
+                    .put("turns_completed", turns)
+                    .put("cold_start", coldStart)
+                    .put("error", error)
+                    .put("thermal", thermalSnapshot())
+                    .put("rss_kb", rssKb())
+                    .toString()
+            )
+        }
+    }
 
     private fun record(o: JSONObject) {
         val f = File(filesDir, "gate-results.json")
