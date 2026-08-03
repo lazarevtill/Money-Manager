@@ -154,13 +154,38 @@ leak. Fallback rung 2 is not a fallback — it is the working configuration.
 1. **It is not a #2421 clearance.** #2421 is reported on **Mali-G715 / Tensor G4**; this is
    **Mali-G78**, an older Valhall generation on the r38 driver. A G715-class or Dimensity device
    is still what closes that question. This licenses a **G78-class allowlist entry**.
-2. **Performance mode was set to maximum by hand partway through the run.** That is not how a
-   user's phone behaves. It raises sustained clocks — arguably a harsher GPU test, but also a
-   configuration no user will be in. **Re-run at default before treating this as the shipping
-   configuration.** The harness now records thermal state per turn so a repeat is interpretable;
-   this run predates that and carries no thermal samples.
+2. ~~Performance mode was set to maximum by hand.~~ **Resolved — re-run at default settings, see
+   below.**
 3. **It says nothing about E4B**, which OOMs on GPU on this device (§1, attempt 1), or about the
    4–6 GB tier.
+
+### Confirmation run at DEFAULT settings — **PASS**, and throttling was observed
+
+The first pass ran with performance mode set to maximum by hand, which no user's phone is in. The
+re-run removes that confound.
+
+| | Max-perf run | **Default-settings run** |
+| --- | --- | --- |
+| Turns | 120 / 120 | **120 / 120** |
+| Errors | none | **none** |
+| RSS min → max | 1,796,060 → 2,240,828 kB | 2,120,176 → 2,300,844 kB |
+| RSS growth first→last | −109,156 kB | **−131,304 kB** |
+| `thermal_status` | not captured | **0 → 1** (NONE → LIGHT), max 1 |
+| Battery temp | not captured | 34.7 °C → 36.1 °C |
+| `power_save_mode` | — | false |
+| `sustained_perf_supported` | — | **false** |
+
+**This is the strongest form of the result.** The device entered LIGHT thermal throttling during
+the run and still completed all 120 turns without a driver fault. The pass is therefore not an
+artifact of unthrottled clocks — the GPU was under genuine sustained thermal load and held up.
+
+**And it reproduces.** Two independent runs, different power configurations, both 120/120, both
+with *negative* RSS growth. A leak would not politely reverse itself twice.
+
+Note `sustained_perf_supported: false` — this device does not expose Android's sustained
+performance mode API, so an app cannot ask the platform to hold stable clocks here. Thermal
+behaviour is whatever the OEM decides. That is an argument for the circuit breaker in
+`app-layers.md` §9.3 rather than for trusting a fixed performance assumption.
 
 ### Attempt 1: **BLOCKED BY MEMORY, not by the driver bug** — 2026-08-03
 
