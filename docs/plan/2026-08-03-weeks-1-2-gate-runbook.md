@@ -146,9 +146,46 @@ Google's prebuilt is correctly aligned. **The multi-day source build is not on t
 **Pin by `revision:`, never by version** (`app-layers.md` §3.1).
 
 **Pass:** ≥1 revision with 100% digit exactness on the fixture set and acceptable latency.
-**Note:** anything below 100% on a 70-item fixture set means silent corruption in production. This gate is pass/fail, not a score to optimise.
+**Note:** anything below 100% means silent corruption in production. This gate is pass/fail, not a score to optimise.
 
-**Result:** _not yet run_
+### Result: **PASS on CPU, 10/10** — 2026-08-03 · and the first run is the interesting part
+
+**First run: FAIL, 9/10.** The prompt asked the model for `amount_minor`, an integer. On
+`Bancolombia: Compra por $1.250.000,00 en ALMACEN EXITO.` Gemma 4 E4B returned:
+
+```json
+{"amount_minor": 1250000, "currency": "COP"}
+```
+
+Expected `125000000`. The model read the digits correctly and then **failed the major-to-minor
+conversion** — a **100× under-report**, recording a 1,250,000 COP purchase as 12,500.00 COP. It
+got the other 2-decimal cases right because their decimals were non-zero and the conversion was
+visible; a trailing `,00` let it return the integer unchanged.
+
+**This is the currency `app-layers.md` §4.3 had already singled out**, in a section titled *"never
+let the model emit a number"*, which also states *"the COP exponent must be settled before the
+first row is written"*. The design was right, and the naive contract was mine, not the product's.
+
+**Second run: PASS, 10/10.** Same model, same fixtures, same device. The only change is who does
+the arithmetic:
+
+| | First run | Second run |
+| --- | --- | --- |
+| Model emits | `amount_minor` (integer) | `amount_text` verbatim + `currency_guess` |
+| Conversion done by | the model | deterministic `MoneyNormaliser` |
+| Result | 9/10 — a silent 100× error | **10/10** |
+
+**What this changes.** §4.3 stops being a precaution and becomes a measured requirement with a
+reproduction. The normaliser resolves separators by rule (rightmost of `.`/`,` wins; a repeated
+separator is grouping; exponent-0 currencies never have a decimal separator) and **returns an
+ambiguity flag rather than guessing** on the genuinely undecidable case §4.3 names — a single
+separator with three trailing digits on a 2-decimal currency, where `1.299` is either 1299 or
+1.299 and nothing in the string decides it.
+
+**Caveat on scope:** 10 fixtures, one backend, one model revision. This shows the contract is
+sound, not that extraction is solved. The real eval corpus is still to be built.
+
+**Result:** CPU **PASS 10/10**. GPU: _pending_
 
 ---
 
