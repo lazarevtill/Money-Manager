@@ -59,6 +59,31 @@ This gap does not block anything now. It becomes blocking before the fallback la
 
 ---
 
+### On-disk footprint is roughly 2x the model — discovered 2026-08-03
+
+Not in any plan. After the E4B runs, the app's files directory contained:
+
+| File | Size |
+| --- | --- |
+| `model.litertlm` | 3.66 GB |
+| `..._3659530240.xnnpack_cache` | 2.21 GB (CPU backend) |
+| `..._mldrift_weight_cache.bin` | 2.20 GB (**GPU weight copy**) |
+| `..._mldrift_program_cache.bin` | 18 MB |
+
+**A 3.66 GB model occupies ~8 GB once both backends have run.** The GPU weight cache is the
+concrete form of "the GPU backend needs its own copy" — the thing that caused the OOM in §1.
+
+Consequences the plan must absorb:
+
+- **Play Asset Delivery sizing and the storage screen are both understated.** `app-layers.md` §7.5
+  ("storage the user can see") must count caches, not just the model, or the number shown to the
+  user is roughly half the truth.
+- **Caches are keyed by model byte-size** (`_3659530240_`), so switching E4B → E2B leaves the old
+  caches orphaned. Model upgrade and the "free up space" flow must delete them explicitly;
+  deleting `model.litertlm` alone reclaims less than half.
+- **Exercising both backends doubles the cache cost.** If the app picks a backend per device, it
+  should avoid initialising the other one at all.
+
 ### Model artifact under test
 
 Every gate result is pinned to this exact artifact (invariant R-ENG-1). "We tested Gemma 4 E4B" is not a result.
