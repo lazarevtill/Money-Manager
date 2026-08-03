@@ -45,6 +45,17 @@ adb shell am instrument -w -e class dev.moneymanager.gates.GateTests#v34_knownAn
 adb pull /sdcard/Android/data/dev.moneymanager.gates/files/gate-results.json
 ```
 
+**After any run that does not print a verdict, pull the checkpoint first:**
+
+```bash
+adb pull /sdcard/Android/data/dev.moneymanager.gates/files/v29-progress.json
+```
+
+V29 can run for twenty minutes. It writes `v29-progress.json` every turn, so a run that dies
+still says how far it got and in what thermal state. "Died at turn 3" and "device unplugged at
+turn 118" are completely different findings, and the first V29 attempt could not tell them apart
+because results were only written on completion.
+
 Tests self-skip with a clear message when the model is absent, so a run without it is a skip,
 not a false pass.
 
